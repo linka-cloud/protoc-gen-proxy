@@ -18,8 +18,15 @@ package test
 
 import (
 	"context"
+	"errors"
+	"io"
 
 	"google.golang.org/grpc"
+)
+
+var (
+	_ = errors.New("")
+	_ = io.EOF
 )
 
 var _ TestServer = (*proxyTest)(nil)
@@ -44,9 +51,15 @@ func (x *proxyTest) ClientStream(s Test_ClientStreamServer) error {
 	if err != nil {
 		return err
 	}
-	defer cs.CloseSend()
 	for {
 		r, err := s.Recv()
+		if errors.Is(err, io.EOF) {
+			res, err := cs.CloseAndRecv()
+			if err != nil {
+				return err
+			}
+			return s.SendAndClose(res)
+		}
 		if err != nil {
 			return err
 		}
@@ -62,7 +75,6 @@ func (x *proxyTest) ServerStream(req *ServerStreamRequest, s Test_ServerStreamSe
 	if err != nil {
 		return err
 	}
-	defer cs.CloseSend()
 	for {
 		res, err := cs.Recv()
 		if err != nil {
@@ -80,11 +92,13 @@ func (x *proxyTest) Stream(s Test_StreamServer) error {
 	if err != nil {
 		return err
 	}
-	defer cs.CloseSend()
 	errs := make(chan error, 2)
 	recv := func() error {
 		for {
 			req, err := s.Recv()
+			if errors.Is(err, io.EOF) {
+				return nil
+			}
 			if err != nil {
 				return err
 			}

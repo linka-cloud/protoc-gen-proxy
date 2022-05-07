@@ -91,8 +91,15 @@ package {{ package . }}
 
 import (
 	"context"
+	"errors"
+	"io"
 
 	"google.golang.org/grpc"
+)
+
+var (
+	_ = errors.New("")
+	_ = io.EOF
 )
 
 {{ range .Services }}
@@ -118,11 +125,13 @@ func (x *proxy{{ $name }}) {{ .Name }}(s {{ serverStream . }}) error {
 	if err != nil {
 		return err
 	}
-	defer cs.CloseSend()
 	errs := make(chan error, 2)
 	recv := func() error {
 		for {
 			req, err := s.Recv()
+			if errors.Is(err, io.EOF) {
+				return nil
+			}
 			if err != nil {
 				return err
 			}
@@ -156,9 +165,15 @@ func (x *proxy{{ $name }}) {{ .Name }}(s {{ serverStream . }}) error {
 	if err != nil {
 		return err
 	}
-	defer cs.CloseSend()
 	for {
 		r, err := s.Recv()
+		if errors.Is(err, io.EOF) {
+			res, err := cs.CloseAndRecv()
+			if err != nil {
+			    return err
+			}
+			return s.SendAndClose(res)
+		}
 		if err != nil {
 			return err
 		}
@@ -173,7 +188,6 @@ func (x *proxy{{ $name }}) {{ .Name }}(req *{{ .Input.Name }}, s {{ serverStream
 	if err != nil {
 		return err
 	}
-	defer cs.CloseSend()
 	for {
 		res, err := cs.Recv()
 		if err != nil {

@@ -34,7 +34,7 @@ func NewTestClient(cc grpc.ClientConnInterface) TestClient {
 
 func (c *testClient) Unary(ctx context.Context, in *UnaryRequest, opts ...grpc.CallOption) (*UnaryResponse, error) {
 	out := new(UnaryResponse)
-	err := c.cc.Invoke(ctx, "/go.propxy.test.Test/Unary", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/go.proxy.test.Test/Unary", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (c *testClient) Unary(ctx context.Context, in *UnaryRequest, opts ...grpc.C
 }
 
 func (c *testClient) ClientStream(ctx context.Context, opts ...grpc.CallOption) (Test_ClientStreamClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Test_ServiceDesc.Streams[0], "/go.propxy.test.Test/ClientStream", opts...)
+	stream, err := c.cc.NewStream(ctx, &Test_ServiceDesc.Streams[0], "/go.proxy.test.Test/ClientStream", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (x *testClientStreamClient) CloseAndRecv() (*ClientStreamResponse, error) {
 }
 
 func (c *testClient) ServerStream(ctx context.Context, in *ServerStreamRequest, opts ...grpc.CallOption) (Test_ServerStreamClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Test_ServiceDesc.Streams[1], "/go.propxy.test.Test/ServerStream", opts...)
+	stream, err := c.cc.NewStream(ctx, &Test_ServiceDesc.Streams[1], "/go.proxy.test.Test/ServerStream", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (x *testServerStreamClient) Recv() (*ServerStreamResponse, error) {
 }
 
 func (c *testClient) Stream(ctx context.Context, opts ...grpc.CallOption) (Test_StreamClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Test_ServiceDesc.Streams[2], "/go.propxy.test.Test/Stream", opts...)
+	stream, err := c.cc.NewStream(ctx, &Test_ServiceDesc.Streams[2], "/go.proxy.test.Test/Stream", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +188,7 @@ func _Test_Unary_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/go.propxy.test.Test/Unary",
+		FullMethod: "/go.proxy.test.Test/Unary",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TestServer).Unary(ctx, req.(*UnaryRequest))
@@ -273,7 +273,7 @@ func (x *testStreamServer) Recv() (*StreamRequest, error) {
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Test_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "go.propxy.test.Test",
+	ServiceName: "go.proxy.test.Test",
 	HandlerType: (*TestServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

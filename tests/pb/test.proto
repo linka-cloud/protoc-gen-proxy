@@ -14,7 +14,7 @@
 
 syntax = "proto3";
 
-package go.propxy.test;
+package go.proxy.test;
 
 option go_package = "go.linka.cloud/protoc-gen-proxy/tests/pb/test";
 

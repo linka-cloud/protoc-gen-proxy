@@ -100,6 +100,7 @@ import (
 var (
 	_ = errors.New("")
 	_ = io.EOF
+	_ = context.Background()
 )
 
 {{ range .Services }}
